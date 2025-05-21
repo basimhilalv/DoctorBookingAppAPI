@@ -60,6 +60,7 @@ namespace DoctorBookingApp.Services.AuthService
 
                 var user = _mapper.Map<User>(request);
                 user.Password = hashpass;
+                user.IsActive = true;
 
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
