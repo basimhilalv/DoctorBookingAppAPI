@@ -7,6 +7,6 @@ namespace DoctorBookingApp.Services.PatientService
         Task<string> CreatePatientProfile(Guid userId, PatientReqDto request);
         Task<string> UpdatePatientProfile(Guid userId, PatientReqDto request);
         Task<string> DeletePatientProfile(Guid userId);
-        Task<string> GetPatientProfile(Guid userId);
+        Task<PatientResDto> GetPatientProfile(Guid userId);
     }
 }

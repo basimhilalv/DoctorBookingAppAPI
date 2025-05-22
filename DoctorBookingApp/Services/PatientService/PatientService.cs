@@ -64,19 +64,85 @@ namespace DoctorBookingApp.Services.PatientService
             }
         }
 
-        public Task<string> DeletePatientProfile(Guid userId)
+        public async Task<string> DeletePatientProfile(Guid userId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var profile = await _context.Patients.FirstOrDefaultAsync(p => p.UserId == userId);
+                if(profile != null)
+                {
+                    _context.Patients.Remove(profile);
+                    await _context.SaveChangesAsync();
+                    return "Profile Deleted Successfully";
+                }
+                return "Profile data deosn't exists";
+            }catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
-        public Task<string> GetPatientProfile(Guid userId)
+        public async Task<PatientResDto> GetPatientProfile(Guid userId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var profile = await _context.Patients.Include(p=>p.User).FirstOrDefaultAsync(p => p.UserId == userId);
+                if (profile is null) throw new Exception("Profile data deosn't exists");
+                var profileRes = _mapper.Map<PatientResDto>(profile);
+                return profileRes;
+            }catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
-        public Task<string> UpdatePatientProfile(Guid userId, PatientReqDto request)
+        public async Task<string> UpdatePatientProfile(Guid userId, PatientReqDto request)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var profile = await _context.Patients.FirstOrDefaultAsync(p => p.UserId == userId);
+                if (profile is null) throw new Exception("Profile Data Deosn't exist");
+                if (request.Avatar != null && request.Avatar.Length > 0)
+                {
+                    await using var stream = request.Avatar.OpenReadStream();
+
+                    var uploadParams = new ImageUploadParams
+                    {
+                        File = new FileDescription(request.Avatar.FileName, stream),
+                        Folder = "patient_avatars"
+                    };
+
+                    var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                    if (uploadResult.StatusCode == HttpStatusCode.OK)
+                    {
+                        profile.AvatarURL = uploadResult.SecureUrl.ToString();
+                    }
+                    else
+                    {
+                        throw new Exception("Image Upload Failed");
+                    }
+                }
+                profile.FullName = request.FullName;
+                profile.Age = request.Age;
+                profile.Gender = request.Gender;
+                profile.DateOfBirth = request.DateOfBirth;
+                profile.Phone = request.Phone;
+                profile.Address = request.Address;
+                profile.BloodGroup = request.BloodGroup;
+                profile.Height = request.Height;
+                profile.Weight = request.Weight;
+                profile.KnownAllergies = request.KnownAllergies;
+                profile.ExistingConditions = request.ExistingConditions;
+                profile.MedicalHistoryNotes = request.MedicalHistoryNotes;
+                profile.Medications = request.Medications;
+
+                await _context.SaveChangesAsync();
+                return "Profile Updated Successfully";
+            }catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }
