@@ -3,6 +3,7 @@ using DoctorBookingApp.Data;
 using DoctorBookingApp.Mappings;
 using DoctorBookingApp.Models.Cloudinary;
 using DoctorBookingApp.Services.AuthService;
+using DoctorBookingApp.Services.PatientService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -81,6 +82,7 @@ builder.Services.AddSingleton(s =>
 
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IPatientService, PatientService>();
 
 var app = builder.Build();
 
