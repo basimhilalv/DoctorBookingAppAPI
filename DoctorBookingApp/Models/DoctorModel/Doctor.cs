@@ -1,5 +1,6 @@
 ﻿using DoctorBookingApp.Models.TimeSlotModel;
 using DoctorBookingApp.Models.UserModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace DoctorBookingApp.Models.DoctorModel
 {
@@ -8,19 +9,26 @@ namespace DoctorBookingApp.Models.DoctorModel
         public Guid Id { get; set; }
 
         //Foreign Key To user table
+        [Required]
         public Guid UserId { get; set; }
         public User User { get; set; }
 
         //Personal infor
+        [Required]
         public string? FullName { get; set; }
         public string? Gender { get; set; }
+        [Required]
         public int Age { get; set; }
+        [Required]
         public string? Phone { get; set; }
+        [Required]
         public string? Address { get; set; }
 
         //Professional infor
+        [Required]
         public string? Qualification { get; set; }
         public string? Specialization { get; set; }
+        [Required]
         public string? RegisterationNumber { get; set; }
         public int YearOfExperience { get; set; }
         public string? HospitalName { get; set; }
@@ -31,6 +39,7 @@ namespace DoctorBookingApp.Models.DoctorModel
 
         //upload files
         public string? AvatarURL { get; set; }
+        [Required]
         public string? CertificationURL { get; set; }
 
         //Rating
