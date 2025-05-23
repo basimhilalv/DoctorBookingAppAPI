@@ -136,6 +136,7 @@ namespace DoctorBookingApp.Services.PatientService
                 profile.ExistingConditions = request.ExistingConditions;
                 profile.MedicalHistoryNotes = request.MedicalHistoryNotes;
                 profile.Medications = request.Medications;
+                profile.UpdatedAt = DateTime.UtcNow;
 
                 await _context.SaveChangesAsync();
                 return "Profile Updated Successfully";
