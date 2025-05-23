@@ -30,9 +30,9 @@ namespace DoctorBookingApp.Models.DoctorModel.Dto
 
 
         //upload files
-        public IFormFile? AvatarURL { get; set; } //image
+        public IFormFile? Avatar { get; set; } //image
         [Required]
-        public IFormFile? CertificationURL { get; set; } //pdf/image
+        public IFormFile? Certification { get; set; } //pdf/image
 
     }
 }
