@@ -160,7 +160,7 @@ namespace DoctorBookingApp.Services.DoctorService
                 profile.LanguagesSpoken = request.LanguagesSpoken;
                 profile.UpdatedAt = DateTime.UtcNow;
 
-                _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
                 return "Profile updated successfully";
             }
             catch(Exception ex)
