@@ -17,7 +17,7 @@ namespace DoctorBookingApp.Controllers
         {
             _patientService = patientService;
         }
-        [Authorize]
+        [Authorize(Roles = "Patient")]
         [HttpGet("Profile")]
         public async Task<IActionResult> getUserProfile()
         {
@@ -41,7 +41,7 @@ namespace DoctorBookingApp.Controllers
                 return BadRequest(new ApiResponse<string>(400, "Failed", null, ex.Message));
             }
         }
-        [Authorize]
+        [Authorize(Roles = "Patient")]
         [HttpPost("CreateProfile")]
         public async Task<IActionResult> createUserProfile([FromForm] PatientReqDto request)
         {
@@ -65,7 +65,7 @@ namespace DoctorBookingApp.Controllers
                 return BadRequest(new ApiResponse<string>(400, "Failed", null, ex.Message));
             }
         }
-        [Authorize]
+        [Authorize(Roles = "Patient")]
         [HttpPut("UpdateProfile")]
         public async Task<IActionResult> updateUserProfile([FromForm] PatientReqDto request)
         {
@@ -89,7 +89,7 @@ namespace DoctorBookingApp.Controllers
                 return BadRequest(new ApiResponse<string>(400, "Failed", null, ex.Message));
             }
         }
-        [Authorize]
+        [Authorize(Roles = "Patient")]
         [HttpPost("DeleteProfile")]
         public async Task<IActionResult> deleteUserProfile()
         {
