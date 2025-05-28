@@ -5,6 +5,8 @@ using DoctorBookingApp.Data;
 using DoctorBookingApp.Models.DoctorModel;
 using DoctorBookingApp.Models.DoctorModel.Dto;
 using DoctorBookingApp.Models.PatientModel;
+using DoctorBookingApp.Models.TimeSlotModel;
+using DoctorBookingApp.Models.TimeSlotModel.Dto;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 
@@ -21,6 +23,41 @@ namespace DoctorBookingApp.Services.DoctorService
             _mapper = mapper;
             _context = context;
             _cloudinary = cloudinary;
+        }
+        public async Task<string> GenerateTimeSlot(Guid userId, SetScheduleDto request)
+        {
+            try
+            {
+                var doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.UserId == userId);
+                if (doctor is null) throw new Exception("Doctor Profile not available");
+                var today = DateTime.Today;
+                for(int week = 0; week < request.WeeksToGenerate; week++)
+                {
+                    foreach(var day in request.DaysAvailable)
+                    {
+                        var date = today.AddDays((int)day - (int)today.DayOfWeek + 7 * week);
+                        if (date < today) continue;
+                        for(var time = request.StartTime; time<request.EndTime; time += TimeSpan.FromMinutes(request.SlotDurationInMinutes))
+                        {
+                            var slot = new TimeSlot
+                            {
+                                DoctorId = doctor.Id,
+                                SlotDate = date,
+                                StartTime = time,
+                                EndTime = time + TimeSpan.FromMinutes(request.SlotDurationInMinutes)
+                            };
+                            _context.TimeSlots.Add(slot);
+                        }
+                    }
+                }
+                var timeslots = await _context.TimeSlots.Where(t => t.DoctorId == doctor.Id).ToListAsync();
+                doctor.TimeSlots = timeslots;
+                await _context.SaveChangesAsync();
+                return "Time Slotes added successfully";
+            }catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
         public async Task<string> CreateDoctorProfile(Guid userId, DoctorReqDto request)
         {
