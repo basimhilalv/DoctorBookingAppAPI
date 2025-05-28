@@ -1,6 +1,7 @@
 ﻿using DoctorBookingApp.AppResponse;
 using DoctorBookingApp.Models.DoctorModel.Dto;
 using DoctorBookingApp.Models.PatientModel.Dto;
+using DoctorBookingApp.Models.TimeSlotModel.Dto;
 using DoctorBookingApp.Services.DoctorService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -17,6 +18,30 @@ namespace DoctorBookingApp.Controllers
         public DoctorController(IDoctorService doctorService)
         {
             _doctorService = doctorService;
+        }
+        [Authorize(Roles ="Doctor")]
+        [HttpPost("SetTimeSlot")]
+        public async Task<IActionResult> SetTimeSlot(SetScheduleDto request)
+        {
+            try
+            {
+                var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (userId is null)
+                {
+                    return Unauthorized(new ApiResponse<string>(401, "User is not authorized"));
+                }
+                Guid userIdguid = Guid.Parse(userId);
+                var result = await _doctorService.GenerateTimeSlot(userIdguid, request);
+                if(result is null)
+                {
+                    return BadRequest(new ApiResponse<string>(400, "Failed", null, "Time slot can't be created"));
+                }
+                return Ok(new ApiResponse<string>(200, result));
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(new ApiResponse<string>(400, "Failed", null, ex.Message));
+            }
         }
         [Authorize(Roles = "Doctor")]
         [HttpGet("Profile")]
