@@ -62,7 +62,28 @@ namespace DoctorBookingApp.Controllers
                 }
                 return Ok(new ApiResponse<string>(200, result));
             }
-            catch
+            catch(Exception ex)
+            {
+                return BadRequest(new ApiResponse<string>(400, "Failed", null, ex.Message));
+            }
+        }
+        [Authorize(Roles ="Doctor")]
+        [HttpDelete("RemoveAllTimeSlot")]
+        public async Task<IActionResult> RemoveAllTimeSlot()
+        {
+            try
+            {
+                var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (userId is null)
+                {
+                    return Unauthorized(new ApiResponse<string>(401, "User is not authorized"));
+                }
+                Guid userIdguid = Guid.Parse(userId);
+                var result = await _doctorService.RemoveAllTimeSlot(userIdguid);
+                if (result is null) return BadRequest(new ApiResponse<string>(400, "Failed", null, "Time Slots deletion unsuccessfull"));
+                return Ok(new ApiResponse<string>(200, result));
+            }
+            catch(Exception ex)
             {
                 return BadRequest(new ApiResponse<string>(400, "Failed", null, ex.Message));
             }
