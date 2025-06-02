@@ -68,6 +68,20 @@ namespace DoctorBookingApp.Services.DoctorService
                 throw new Exception(ex.Message);
             }
         }
+        public async Task<IEnumerable<TimeSlot>> GetAllTimeSlots(Guid userId)
+        {
+            try
+            {
+                var doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.UserId == userId);
+                if (doctor is null) throw new Exception("Doctor profile not available");
+                var timeSlots = await _context.TimeSlots.Where(t => t.DoctorId == doctor.Id).ToListAsync();
+                if (!timeSlots.Any()) throw new Exception("Time Slots are not available");
+                return timeSlots;
+            }catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
         public async Task<string> RemoveOneTimeSlot(Guid userId, Guid slotId)
         {
             try

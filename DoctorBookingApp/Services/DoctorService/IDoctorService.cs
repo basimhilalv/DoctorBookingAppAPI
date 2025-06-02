@@ -1,4 +1,5 @@
 ﻿using DoctorBookingApp.Models.DoctorModel.Dto;
+using DoctorBookingApp.Models.TimeSlotModel;
 using DoctorBookingApp.Models.TimeSlotModel.Dto;
 
 namespace DoctorBookingApp.Services.DoctorService
@@ -10,6 +11,7 @@ namespace DoctorBookingApp.Services.DoctorService
         Task<string> DeleteDoctorProfile(Guid userId);
         Task<DoctorResDto> GetDoctorProfile(Guid userId);
         Task<string> GenerateTimeSlot(Guid userId, SetScheduleDto request);
+        Task<IEnumerable<TimeSlot>> GetAllTimeSlots(Guid userId);  
         Task<string> RemoveOneTimeSlot(Guid userId, Guid slotId);
         Task<string> RemoveAllTimeSlot(Guid userId);
         Task<string> RemoveTimeSlotByDate(Guid userId, DateTime date);
