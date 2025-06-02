@@ -11,5 +11,7 @@ namespace DoctorBookingApp.Services.DoctorService
         Task<DoctorResDto> GetDoctorProfile(Guid userId);
         Task<string> GenerateTimeSlot(Guid userId, SetScheduleDto request);
         Task<string> RemoveOneTimeSlot(Guid userId, Guid slotId);
+        Task<string> RemoveAllTimeSlot(Guid userId);
+        Task<string> RemoveTimeSlotByDate(Guid userId, DateTime date);
     }
 }

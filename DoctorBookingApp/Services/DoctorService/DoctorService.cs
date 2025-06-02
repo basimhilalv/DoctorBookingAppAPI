@@ -82,6 +82,22 @@ namespace DoctorBookingApp.Services.DoctorService
             }
             catch (Exception ex) { throw new Exception(ex.Message); }
         }
+        public async Task<string> RemoveAllTimeSlot(Guid userId)
+        {
+            try
+            {
+                var doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.UserId == userId);
+                if (doctor is null) throw new Exception("Doctor profile not available");
+                var timeSlots = await _context.TimeSlots.Where(t => t.DoctorId == doctor.Id).ToListAsync();
+                if (!timeSlots.Any()) throw new Exception("Time Slots are not available");
+                _context.TimeSlots.RemoveRange(timeSlots);
+                await _context.SaveChangesAsync();
+                return "All time slots removed";
+            }catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
         public async Task<string> CreateDoctorProfile(Guid userId, DoctorReqDto request)
         {
             try
