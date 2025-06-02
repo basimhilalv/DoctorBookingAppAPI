@@ -39,25 +39,48 @@ namespace DoctorBookingApp.Services.DoctorService
                         if (date < today) continue;
                         for(var time = request.StartTime; time<request.EndTime; time += TimeSpan.FromMinutes(request.SlotDurationInMinutes))
                         {
-                            var slot = new TimeSlot
+                            var startTime = time;
+                            var endTime = time + TimeSpan.FromMinutes(request.SlotDurationInMinutes);
+
+                            var exists = await _context.TimeSlots.AnyAsync(s => 
+                                s.DoctorId == doctor.Id && 
+                                s.SlotDate == date && 
+                                s.StartTime == startTime &&
+                                s.EndTime == endTime);
+                            if (!exists)
                             {
-                                DoctorId = doctor.Id,
-                                SlotDate = date,
-                                StartTime = time,
-                                EndTime = time + TimeSpan.FromMinutes(request.SlotDurationInMinutes)
-                            };
-                            _context.TimeSlots.Add(slot);
+                                var slot = new TimeSlot
+                                {
+                                    DoctorId = doctor.Id,
+                                    SlotDate = date,
+                                    StartTime = startTime,
+                                    EndTime = endTime
+                                };
+                                _context.TimeSlots.Add(slot);
+                            }
+                            await _context.SaveChangesAsync();
                         }
                     }
                 }
-                var timeslots = await _context.TimeSlots.Where(t => t.DoctorId == doctor.Id).ToListAsync();
-                doctor.TimeSlots = timeslots;
-                await _context.SaveChangesAsync();
                 return "Time Slotes added successfully";
             }catch(Exception ex)
             {
                 throw new Exception(ex.Message);
             }
+        }
+        public async Task<string> RemoveOneTimeSlot(Guid userId, Guid slotId)
+        {
+            try
+            {
+                var doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.UserId == userId);
+                if (doctor is null) throw new Exception("Doctor profile not available");
+                var timeSlot = await _context.TimeSlots.FirstOrDefaultAsync(t => t.Id == slotId && t.DoctorId == doctor.Id);
+                if (timeSlot is null) throw new Exception("Time Slot not available");
+                _context.TimeSlots.Remove(timeSlot);
+                await _context.SaveChangesAsync();
+                return "Time Slot deleted successfully";
+            }
+            catch (Exception ex) { throw new Exception(ex.Message); }
         }
         public async Task<string> CreateDoctorProfile(Guid userId, DoctorReqDto request)
         {
