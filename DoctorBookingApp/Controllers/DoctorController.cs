@@ -1,6 +1,7 @@
 ﻿using DoctorBookingApp.AppResponse;
 using DoctorBookingApp.Models.DoctorModel.Dto;
 using DoctorBookingApp.Models.PatientModel.Dto;
+using DoctorBookingApp.Models.TimeSlotModel;
 using DoctorBookingApp.Models.TimeSlotModel.Dto;
 using DoctorBookingApp.Services.DoctorService;
 using Microsoft.AspNetCore.Authorization;
@@ -41,6 +42,26 @@ namespace DoctorBookingApp.Controllers
             catch(Exception ex)
             {
                 return BadRequest(new ApiResponse<string>(400, "Failed", null, ex.Message));
+            }
+        }
+        [Authorize(Roles ="Doctor")]
+        [HttpGet("TimeSlots")]
+        public async Task<IActionResult> GetAllTimeSlots()
+        {
+            try
+            {
+                var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (userId is null)
+                {
+                    return Unauthorized(new ApiResponse<string>(401, "User is not authorized"));
+                }
+                Guid userIdguid = Guid.Parse(userId);
+                var result = await _doctorService.GetAllTimeSlots(userIdguid);
+                if (result is null) return BadRequest(new ApiResponse<string>(400, "Failed", null, "No Time Slots available"));
+                return Ok(new ApiResponse<IEnumerable<TimeSlot>>(200, "All time slots retrieved", result));
+            }catch(Exception ex)
+            {
+                return BadRequest(new ApiResponse<string>(400,"Failed",null,ex.Message));
             }
         }
         [Authorize(Roles ="Doctor")]
