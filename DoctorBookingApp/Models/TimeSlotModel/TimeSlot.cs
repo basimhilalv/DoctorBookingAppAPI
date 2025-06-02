@@ -6,7 +6,7 @@ namespace DoctorBookingApp.Models.TimeSlotModel
     {
         public Guid Id { get; set; }
         public Guid DoctorId { get; set; }
-        public Doctor? Doctor { get; set; }
+        
         public DateTime SlotDate { get; set; }
         public TimeSpan StartTime { get; set; }
         public TimeSpan EndTime { get; set; }

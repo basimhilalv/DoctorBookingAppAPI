@@ -206,6 +206,8 @@ namespace DoctorBookingApp.Services.DoctorService
                 var profile = await _context.Doctors.Include(d=> d.User).FirstOrDefaultAsync(u => u.UserId == userId);
                 if (profile is null) throw new Exception("Doctor profile not available");
                 var profileRes = _mapper.Map<DoctorResDto>(profile);
+                var timeSlots = await _context.TimeSlots.Where(t => t.DoctorId == profileRes.Id).ToListAsync();
+                profileRes.TimeSlots = timeSlots;
                 return profileRes;
             }catch(Exception ex)
             {
