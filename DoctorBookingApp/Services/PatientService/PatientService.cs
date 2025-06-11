@@ -7,6 +7,7 @@ using DoctorBookingApp.Models.DoctorModel;
 using DoctorBookingApp.Models.DoctorModel.Dto;
 using DoctorBookingApp.Models.PatientModel;
 using DoctorBookingApp.Models.PatientModel.Dto;
+using DoctorBookingApp.Models.TimeSlotModel;
 using DoctorBookingApp.SignalR;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -145,6 +146,19 @@ namespace DoctorBookingApp.Services.PatientService
                 if (profile is null) throw new Exception("Profile data deosn't exists");
                 var profileRes = _mapper.Map<PatientResDto>(profile);
                 return profileRes;
+            }catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<IEnumerable<TimeSlot>> GetTimeSlots(Guid doctorId)
+        {
+            try
+            {
+                var timeslots = await _context.TimeSlots.Where(t=> t.DoctorId == doctorId && t.SlotDate >= DateTime.UtcNow).ToListAsync();
+                if (timeslots.Count == 0) throw new Exception("No TimeSlots available");
+                return timeslots;
             }catch(Exception ex)
             {
                 throw new Exception(ex.Message);

@@ -2,6 +2,7 @@
 using DoctorBookingApp.Models.DoctorModel;
 using DoctorBookingApp.Models.DoctorModel.Dto;
 using DoctorBookingApp.Models.PatientModel.Dto;
+using DoctorBookingApp.Models.TimeSlotModel;
 
 namespace DoctorBookingApp.Services.PatientService
 {
@@ -15,5 +16,6 @@ namespace DoctorBookingApp.Services.PatientService
         Task<string> MakeAppointment(Guid userId, Guid slotId);
         Task<string> CancelAppointment(Guid userId, Guid appointmentId);
         Task<IEnumerable<Appointment>> GetAppointments(Guid userId);
+        Task<IEnumerable<TimeSlot>> GetTimeSlots(Guid doctorId);
     }
 }

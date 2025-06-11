@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Stripe;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -78,7 +79,7 @@ builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection(
 builder.Services.AddSingleton(s =>
 {
     var config = builder.Configuration.GetSection("CloudinarySettings").Get<CloudinarySettings>();
-    var account = new Account(config.CloudName, config.ApiKey, config.ApiSecret);
+    var account = new CloudinaryDotNet.Account(config.CloudName, config.ApiKey, config.ApiSecret);
     return new Cloudinary(account);
 });
 
@@ -88,6 +89,9 @@ builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
 
 builder.Services.AddSignalR();
+
+StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+
 
 var app = builder.Build();
 
