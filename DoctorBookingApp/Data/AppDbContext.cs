@@ -1,4 +1,5 @@
-﻿using DoctorBookingApp.Models.DoctorModel;
+﻿using DoctorBookingApp.Models.AppointmentModel;
+using DoctorBookingApp.Models.DoctorModel;
 using DoctorBookingApp.Models.PatientModel;
 using DoctorBookingApp.Models.TimeSlotModel;
 using DoctorBookingApp.Models.UserModel;
@@ -16,6 +17,7 @@ namespace DoctorBookingApp.Data
         public DbSet<Patient> Patients { get; set; }
         public DbSet<Doctor> Doctors { get; set; }
         public DbSet<TimeSlot> TimeSlots { get; set; }
+        public DbSet<Appointment> Appointments { get; set; }
 
     }
 }

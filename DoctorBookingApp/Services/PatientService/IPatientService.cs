@@ -1,4 +1,6 @@
-﻿using DoctorBookingApp.Models.PatientModel.Dto;
+﻿using DoctorBookingApp.Models.DoctorModel;
+using DoctorBookingApp.Models.DoctorModel.Dto;
+using DoctorBookingApp.Models.PatientModel.Dto;
 
 namespace DoctorBookingApp.Services.PatientService
 {
@@ -8,5 +10,8 @@ namespace DoctorBookingApp.Services.PatientService
         Task<string> UpdatePatientProfile(Guid userId, PatientReqDto request);
         Task<string> DeletePatientProfile(Guid userId);
         Task<PatientResDto> GetPatientProfile(Guid userId);
+        Task<IEnumerable<Doctor>> GetAvailableDoctors();
+        Task<string> MakeAppointment(Guid userId, Guid slotId);
+        Task<string> CancelAppointment(Guid appointmentId);
     }
 }

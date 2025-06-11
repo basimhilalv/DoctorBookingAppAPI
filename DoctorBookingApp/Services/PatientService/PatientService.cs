@@ -2,8 +2,13 @@
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using DoctorBookingApp.Data;
+using DoctorBookingApp.Models.AppointmentModel;
+using DoctorBookingApp.Models.DoctorModel;
+using DoctorBookingApp.Models.DoctorModel.Dto;
 using DoctorBookingApp.Models.PatientModel;
 using DoctorBookingApp.Models.PatientModel.Dto;
+using DoctorBookingApp.SignalR;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 
@@ -14,12 +19,19 @@ namespace DoctorBookingApp.Services.PatientService
         private readonly IMapper _mapper;
         private readonly AppDbContext _context;
         private readonly Cloudinary _cloudinary;
+        private readonly IHubContext<BookingHub> _hubContext;
 
-        public PatientService(IMapper mapper, AppDbContext context, Cloudinary cloudinary)
+        public PatientService(IMapper mapper, AppDbContext context, Cloudinary cloudinary, IHubContext<BookingHub> hubContext)
         {
             _mapper = mapper;
             _context = context;
             _cloudinary = cloudinary;
+            _hubContext = hubContext;
+        }
+
+        public Task<string> CancelAppointment(Guid appointmentId)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<string> CreatePatientProfile(Guid userId, PatientReqDto request)
@@ -82,6 +94,19 @@ namespace DoctorBookingApp.Services.PatientService
             }
         }
 
+        public async Task<IEnumerable<Doctor>> GetAvailableDoctors()
+        {
+            try
+            {
+                var doctors = await _context.Doctors.ToListAsync();
+                if (doctors.Count == 0) throw new Exception("No Doctors available");
+                return doctors;
+            }catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<PatientResDto> GetPatientProfile(Guid userId)
         {
             try
@@ -90,6 +115,43 @@ namespace DoctorBookingApp.Services.PatientService
                 if (profile is null) throw new Exception("Profile data deosn't exists");
                 var profileRes = _mapper.Map<PatientResDto>(profile);
                 return profileRes;
+            }catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<string> MakeAppointment(Guid userId, Guid slotId)
+        {
+            var slot = await _context.TimeSlots.FirstOrDefaultAsync(t => t.Id == slotId);
+            if (slot == null || slot.IsBooked) throw new Exception("Time Slot is not available");
+
+            var patient = await _context.Patients.FirstOrDefaultAsync(p => p.UserId == userId);
+            if (patient == null) throw new Exception("Profile Data Deosn't Exist");
+
+            //Begin Transaction to avoid race conditions.
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                slot.IsBooked = true;
+                var appointment = new Appointment
+                {
+                    PatientId = patient.Id,
+                    DoctorId = slot.DoctorId,
+                    TimeSlotId = slot.Id,
+                    AppointmentDate = slot.SlotDate,
+                    StartTime = slot.StartTime,
+                    EndTime = slot.EndTime,
+                    Status = "Booked"
+                };
+                _context.Appointments.Add(appointment);
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                //broadcast booking updates using signalR
+                await _hubContext.Clients.Group(slot.DoctorId.ToString()).SendAsync("SlotBooked", slot.Id);
+                return "Appointment Booked Successfully";
             }catch(Exception ex)
             {
                 throw new Exception(ex.Message);
