@@ -1,4 +1,5 @@
 ﻿using DoctorBookingApp.AppResponse;
+using DoctorBookingApp.Models.AppointmentModel;
 using DoctorBookingApp.Models.DoctorModel.Dto;
 using DoctorBookingApp.Models.PatientModel.Dto;
 using DoctorBookingApp.Models.TimeSlotModel;
@@ -19,6 +20,27 @@ namespace DoctorBookingApp.Controllers
         public DoctorController(IDoctorService doctorService)
         {
             _doctorService = doctorService;
+        }
+        [Authorize(Roles ="Doctor")]
+        [HttpGet("GetAppointments")]
+        public async Task<IActionResult> getAppointments()
+        {
+            try
+            {
+                var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (userId is null)
+                {
+                    return Unauthorized(new ApiResponse<string>(401, "User is not authorized"));
+                }
+                Guid userIdguid = Guid.Parse(userId);
+                var result = await _doctorService.GetAllApointments(userIdguid);
+                if (result is null) return BadRequest(new ApiResponse<string>(400, "Failed", null, "Appointments not found"));
+                return Ok(new ApiResponse<IEnumerable<Appointment>>(200, "Appointments retrieved successfully", result));
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(new ApiResponse<string>(400, "Failed", null, ex.Message));
+            }
         }
         [Authorize(Roles ="Doctor")]
         [HttpPost("SetTimeSlot")]

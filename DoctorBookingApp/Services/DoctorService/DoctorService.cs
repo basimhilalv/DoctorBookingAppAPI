@@ -2,6 +2,7 @@
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using DoctorBookingApp.Data;
+using DoctorBookingApp.Models.AppointmentModel;
 using DoctorBookingApp.Models.DoctorModel;
 using DoctorBookingApp.Models.DoctorModel.Dto;
 using DoctorBookingApp.Models.PatientModel;
@@ -272,6 +273,21 @@ namespace DoctorBookingApp.Services.DoctorService
                 return "Profile updated successfully";
             }
             catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<IEnumerable<Appointment>> GetAllApointments(Guid userId)
+        {
+            try
+            {
+                var doctor = await _context.Doctors.FirstOrDefaultAsync(d=>d.UserId == userId);
+                if (doctor == null) throw new Exception("Doctor profile is not available");
+                var appointments = await _context.Appointments.Where(a=>a.DoctorId==doctor.Id).ToListAsync();
+                if (!appointments.Any()) throw new Exception("Appointments not found");
+                return appointments;
+            }catch(Exception ex)
             {
                 throw new Exception(ex.Message);
             }
