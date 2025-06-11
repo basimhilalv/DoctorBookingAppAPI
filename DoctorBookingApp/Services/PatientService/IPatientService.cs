@@ -1,4 +1,5 @@
-﻿using DoctorBookingApp.Models.DoctorModel;
+﻿using DoctorBookingApp.Models.AppointmentModel;
+using DoctorBookingApp.Models.DoctorModel;
 using DoctorBookingApp.Models.DoctorModel.Dto;
 using DoctorBookingApp.Models.PatientModel.Dto;
 
@@ -12,6 +13,7 @@ namespace DoctorBookingApp.Services.PatientService
         Task<PatientResDto> GetPatientProfile(Guid userId);
         Task<IEnumerable<Doctor>> GetAvailableDoctors();
         Task<string> MakeAppointment(Guid userId, Guid slotId);
-        Task<string> CancelAppointment(Guid appointmentId);
+        Task<string> CancelAppointment(Guid userId, Guid appointmentId);
+        Task<IEnumerable<Appointment>> GetAppointments(Guid userId);
     }
 }

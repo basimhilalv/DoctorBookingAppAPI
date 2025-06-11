@@ -29,9 +29,24 @@ namespace DoctorBookingApp.Services.PatientService
             _hubContext = hubContext;
         }
 
-        public Task<string> CancelAppointment(Guid appointmentId)
+        public async Task<string> CancelAppointment(Guid userId, Guid appointmentId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var patient = await _context.Patients.FirstOrDefaultAsync(p => p.UserId == userId);
+                if (patient == null) throw new Exception("Patient profile not available");
+                var appointment = await _context.Appointments.FirstOrDefaultAsync(a => a.Id == appointmentId && a.PatientId == patient.Id);
+                if (appointment == null) throw new Exception("Appointment is not found");
+                var slot = await _context.TimeSlots.FirstOrDefaultAsync(t => t.Id == appointment.TimeSlotId);
+                if (slot == null) throw new Exception("Time Slot is not found");
+                appointment.Status = "Cancelled";
+                slot.IsBooked = false;
+                await _context.SaveChangesAsync();
+                return "Appointment Cancelled Successfully";
+            }catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<string> CreatePatientProfile(Guid userId, PatientReqDto request)
@@ -88,6 +103,21 @@ namespace DoctorBookingApp.Services.PatientService
                     return "Profile Deleted Successfully";
                 }
                 return "Profile data deosn't exists";
+            }catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<IEnumerable<Appointment>> GetAppointments(Guid userId)
+        {
+            try
+            {
+                var patient = await _context.Patients.FirstOrDefaultAsync(p=> p.UserId == userId);
+                if (patient is null) throw new Exception("Patient profile not available");
+                var appointments = await _context.Appointments.Where(a => a.PatientId == patient.Id).ToListAsync();
+                if (!appointments.Any()) throw new Exception("No Appointments available");
+                return appointments;
             }catch(Exception ex)
             {
                 throw new Exception(ex.Message);

@@ -5,6 +5,7 @@ using DoctorBookingApp.Models.Cloudinary;
 using DoctorBookingApp.Services.AuthService;
 using DoctorBookingApp.Services.DoctorService;
 using DoctorBookingApp.Services.PatientService;
+using DoctorBookingApp.SignalR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -86,6 +87,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
 
+builder.Services.AddSignalR();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -100,5 +103,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<BookingHub>("/bookingHub");
 
 app.Run();
