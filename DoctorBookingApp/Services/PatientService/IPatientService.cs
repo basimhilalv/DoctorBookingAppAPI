@@ -17,5 +17,8 @@ namespace DoctorBookingApp.Services.PatientService
         Task<string> CancelAppointment(Guid userId, Guid appointmentId);
         Task<IEnumerable<Appointment>> GetAppointments(Guid userId);
         Task<IEnumerable<TimeSlot>> GetTimeSlots(Guid doctorId);
+        Task<string> CreateStripePaymentIntent(Guid appointmentId);
+        Task<string> MarkAppointmentAsPaid(string paymentIntentId, string transactionId);
+        Task<string> MarkAppointmentAsCash(Guid appointmentId);
     }
 }

@@ -11,6 +11,7 @@ using DoctorBookingApp.Models.TimeSlotModel;
 using DoctorBookingApp.SignalR;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 using System.Net;
 
 namespace DoctorBookingApp.Services.PatientService
@@ -30,6 +31,66 @@ namespace DoctorBookingApp.Services.PatientService
             _hubContext = hubContext;
         }
 
+        public async Task<string> CreateStripePaymentIntent(Guid appointmentId)
+        {
+            try
+            {
+                var appointment = await _context.Appointments.FirstOrDefaultAsync(a=>a.Id == appointmentId && a.PaymentStatus == null);
+                if (appointment == null) throw new Exception("Appointment Not Found");
+
+                var options = new PaymentIntentCreateOptions
+                {
+                    Amount = (long)(appointment.FeeAmount * 100),
+                    Currency = "inr",
+                    PaymentMethodTypes = new List<string> { "card" },
+                };
+
+                var service = new PaymentIntentService();
+                var paymentIntent = await service.CreateAsync(options);
+
+                appointment.StripePaymentIntentId = paymentIntent.Id;
+                appointment.PaymentStatus = "Pending";
+
+                await _context.SaveChangesAsync();
+                return paymentIntent.ClientSecret;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public async Task<string> MarkAppointmentAsPaid(string paymentIntentId, string transactionId)
+        {
+            try
+            {
+                var appointment = await _context.Appointments.FirstOrDefaultAsync(a=>a.StripePaymentIntentId == paymentIntentId && a.PaymentStatus == "Pending");
+                if (appointment is null) throw new Exception("Appointment not found with stripe details");
+                appointment.PaymentStatus = "Paid";
+                appointment.StripeTransactionId = transactionId;
+
+                await _context.SaveChangesAsync();
+                return "Payment marked as paid";
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public async Task<string> MarkAppointmentAsCash(Guid appointmentId)
+        {
+            try
+            {
+                var appointment = await _context.Appointments.FirstOrDefaultAsync(a => a.Id == appointmentId && a.PaymentStatus == null);
+                if (appointment is null) throw new Exception("Appointment is not found");
+                appointment.PaymentStatus = "Cash";
+                await _context.SaveChangesAsync();
+                return "Payment marked as Cash";
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
         public async Task<string> CancelAppointment(Guid userId, Guid appointmentId)
         {
             try

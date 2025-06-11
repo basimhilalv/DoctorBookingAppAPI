@@ -2,6 +2,7 @@
 using DoctorBookingApp.Models.AppointmentModel;
 using DoctorBookingApp.Models.DoctorModel;
 using DoctorBookingApp.Models.PatientModel.Dto;
+using DoctorBookingApp.Models.PaymentModel.Dto;
 using DoctorBookingApp.Models.TimeSlotModel;
 using DoctorBookingApp.Services.PatientService;
 using Microsoft.AspNetCore.Authorization;
@@ -19,6 +20,40 @@ namespace DoctorBookingApp.Controllers
         public PatientController(IPatientService patientService)
         {
             _patientService = patientService;
+        }
+        [Authorize(Roles = "Patient")]
+        [HttpPost("createPaymentintent")]
+        public async Task<IActionResult> CreateIntent(CreatePaymentDto payment)
+        {
+            try
+            {
+                if(payment.PaymentMethod.ToLower() == "cash")
+                {
+                    var result = await _patientService.MarkAppointmentAsCash(payment.AppointmentId);
+                    if (result is null) return BadRequest(new ApiResponse<string>(400, "Failed", null, "Operation Failed"));
+                    return Ok(new ApiResponse<string>(200, "Payment made as cash", result));
+                }
+                var clientSecret = await _patientService.CreateStripePaymentIntent(payment.AppointmentId);
+                return Ok(new ApiResponse<string>(200, "Payment initiated", clientSecret));
+            }catch(Exception ex)
+            {
+                return BadRequest(new ApiResponse<string>(400, "Failed", null, ex.Message));
+            }
+        }
+        [Authorize(Roles = "Patient")]
+        [HttpPost("ConfirmPayment")]
+        public async Task<IActionResult> ConfirmPayment(string paymentIntentId, string transactionId)
+        {
+            try
+            {
+                var result = await _patientService.MarkAppointmentAsPaid(paymentIntentId, transactionId);
+                if (result is null) return BadRequest(new ApiResponse<string>(400, "Failed", null, "Operation Failed"));
+                return Ok(new ApiResponse<string>(200, "Payment Confirmed", result));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<string>(400, "Failed", null, ex.Message));
+            }
         }
         [Authorize(Roles ="Patient")]
         [HttpGet("doctors")]

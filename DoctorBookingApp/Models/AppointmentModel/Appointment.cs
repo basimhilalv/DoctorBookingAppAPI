@@ -15,5 +15,14 @@ namespace DoctorBookingApp.Models.AppointmentModel
         public string? Status { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        //payment details
+        public string? PaymentStatus { get; set; }
+        public string? StripePaymentIntentId { get; set; }
+        public string? StripeTransactionId { get; set; }
+
+        //fee details
+        public decimal FeeAmount { get; set; } = 100;
+    
+
     }
 }
