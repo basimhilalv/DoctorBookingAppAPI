@@ -190,7 +190,7 @@ namespace DoctorBookingApp.Services.PatientService
         {
             try
             {
-                var doctors = await _context.Doctors.ToListAsync();
+                var doctors = await _context.Doctors.Where(d=>d.IsVerified == true).ToListAsync();
                 if (doctors.Count == 0) throw new Exception("No Doctors available");
                 return doctors;
             }catch(Exception ex)

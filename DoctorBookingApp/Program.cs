@@ -2,6 +2,7 @@ using CloudinaryDotNet;
 using DoctorBookingApp.Data;
 using DoctorBookingApp.Mappings;
 using DoctorBookingApp.Models.Cloudinary;
+using DoctorBookingApp.Services.AdminService;
 using DoctorBookingApp.Services.AuthService;
 using DoctorBookingApp.Services.DoctorService;
 using DoctorBookingApp.Services.PatientService;
@@ -87,6 +88,7 @@ builder.Services.AddSingleton(s =>
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 
 builder.Services.AddSignalR();
 

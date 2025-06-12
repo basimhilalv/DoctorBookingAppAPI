@@ -11,5 +11,6 @@ namespace DoctorBookingApp.Services.AdminService
         Task<IEnumerable<Doctor>> GetDoctorsList();
         Task<IEnumerable<Patient>> GetPatientList();
         Task<string> VerifyDoctor(Guid DoctorId);
+        Task<string> BlockDoctor(Guid DoctorId);
     }
 }

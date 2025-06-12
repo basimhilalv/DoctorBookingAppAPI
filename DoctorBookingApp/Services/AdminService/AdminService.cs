@@ -14,6 +14,22 @@ namespace DoctorBookingApp.Services.AdminService
             _context = context;
         }
 
+        public async Task<string> BlockDoctor(Guid DoctorId)
+        {
+            try
+            {
+                var doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.Id == DoctorId);
+                if (doctor == null) throw new Exception("Doctor not found");
+                doctor.IsVerified = false;
+                await _context.SaveChangesAsync();
+                return "Doctor profile is blocked successfully";
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<string> BlockOrUnblock(Guid userId)
         {
             try
