@@ -49,5 +49,8 @@ namespace DoctorBookingApp.Models.DoctorModel
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; }
 
+        //verification
+        public bool IsVerified { get; set; } = false;
+
     }
 }
