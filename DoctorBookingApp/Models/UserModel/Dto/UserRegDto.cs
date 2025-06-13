@@ -19,6 +19,6 @@ namespace DoctorBookingApp.Models.UserModel.Dto
         public string? Password { get; set; }
 
         [Required(ErrorMessage = "Role is required")]
-        public string? Role { get; set; }
+        public int RoleId { get; set; }
     }
 }

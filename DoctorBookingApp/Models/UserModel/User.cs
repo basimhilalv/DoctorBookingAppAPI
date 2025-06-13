@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using DoctorBookingApp.Models.RolesModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace DoctorBookingApp.Models.UserModel
 {
@@ -21,7 +22,8 @@ namespace DoctorBookingApp.Models.UserModel
         public string? Password { get; set; }
 
         [Required(ErrorMessage ="Role is required")]
-        public string? Role { get; set; }
+        public int RoleId { get; set; }
+        public Role? Role { get; set; }
         public bool IsActive { get; set; }
 
     }

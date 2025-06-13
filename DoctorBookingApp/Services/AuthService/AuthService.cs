@@ -26,7 +26,7 @@ namespace DoctorBookingApp.Services.AuthService
         {
             try
             {
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+                var user = await _context.Users.Include(u=>u.Role).FirstOrDefaultAsync(u => u.Email == request.Email);
                 if (user is null) throw new InvalidOperationException("Invalid Email");
                 if (!BCrypt.Net.BCrypt.Verify(request.Password, user.Password)) throw new InvalidOperationException("Invalid Password");
 
@@ -36,7 +36,7 @@ namespace DoctorBookingApp.Services.AuthService
                 {
                     Username = user.Username,
                     Email = user.Email,
-                    Role = user.Role,
+                    Role = user.Role.Name,
                     token = token
                 };
                 return loginRes;
@@ -82,7 +82,7 @@ namespace DoctorBookingApp.Services.AuthService
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role)
+                new Claim(ClaimTypes.Role, user.Role.Name)
             };
 
             var token = new JwtSecurityToken(
